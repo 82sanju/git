@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My RAG App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; }
+        button { padding: 10px 15px; }
+        #response { margin-top: 20px; border: 1px solid #ccc; padding: 10px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Ask a Question About Your Document</h1>
+    <input type="text" id="queryInput" placeholder="Enter your question here...">
+    <button onclick="sendQuery()">Ask</button>
+    <div id="response">The answer will appear here...</div>
+
+    <script>
+        async function sendQuery() {
+            const input = document.getElementById('queryInput');
+            const responseDiv = document.getElementById('response');
+            const question = input.value;
+
+            if (!question) {
+                alert('Please enter a question.');
+                return;
+            }
+
+            responseDiv.innerText = 'Thinking...';
+
+            try {
+                const response = await fetch('http://localhost:8000/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: question })
+                });
+
+                const data = await response.json();
+
+                if (data.answer) {
+                    responseDiv.innerText = data.answer;
+                } else {
+                    responseDiv.innerText = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                responseDiv.innerText = 'Failed to connect to the server.';
+            }
+        }
+    </script>
+</body>
+</html>
